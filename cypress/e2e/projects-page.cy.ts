@@ -11,19 +11,19 @@ describe("Projects page", () => {
     }).as("getProjects");
   });
 
-  it("should show a list with the projects", () => {
+  it("should show a list with all the projects", () => {
     cy.visit("/projects");
     cy.wait("@getProjects");
-    cy.get("h1").should("contain", "Welcome to PM25 projects");
-    cy.get("[data-testid=airbox").should("contain", "airbox");
-    cy.get("[data-testid=fw_sensor").should("contain", "fw_sensor");
+    cy.get("h2").should("contain", "Projects");
+    cy.get("[data-testid=airbox").should("contain", "Airbox");
+    cy.get("[data-testid=fw_sensor").should("contain", "Fw Sensor");
   });
 
   it("should allow the user to click on the project and redirect to project page", () => {
     cy.visit("/projects");
     cy.wait("@getProjects");
     cy.get("h1").should("contain", "Welcome to PM25 projects");
-    cy.get("[data-testid=airbox").should("contain", "airbox");
+    cy.get("[data-testid=airbox").should("contain", "Airbox");
 
     cy.intercept("GET", "/api/projects/airbox", {
       statusCode: 200,

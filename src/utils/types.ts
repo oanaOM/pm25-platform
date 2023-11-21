@@ -13,6 +13,7 @@ export interface Project {
   c_d0_source: string;
   num_of_records: number;
   feeds: Feed[];
+  version: string;
 }
 
 export interface Feed {

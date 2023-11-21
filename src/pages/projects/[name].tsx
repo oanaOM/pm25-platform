@@ -51,11 +51,13 @@ export default function ProjectPage() {
         <Header />
         <section>
           <Box pl={14} pr={14}>
-            <Stack spacing="24px">
+            <Stack spacing="18px">
               <Heading as="h2" pt={6} pb={6}>
                 {displayName && `Project ${displayName}`}
               </Heading>
-              <Text>Total feeds: {project?.feeds.length}</Text>
+              <Text>Source: {project?.source}</Text>
+              <Text>Version: {project?.version}</Text>
+              <Text>Top 10 out of {project?.feeds.length} total feeds </Text>
               {isLoading ? (
                 <Box>
                   <Spinner />

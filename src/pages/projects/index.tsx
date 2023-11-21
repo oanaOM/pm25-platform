@@ -66,7 +66,12 @@ export default function ProjectsPage() {
                           query: { name: project },
                         }}
                       >
-                        {project}
+                        {/* TODO: extract this to a separate function to make it more readable and reusable */}
+                        {project
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (firstLetter: string) =>
+                            firstLetter.toUpperCase()
+                          )}
                       </Link>
                     </ListItem>
                   ))}
