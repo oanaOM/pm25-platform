@@ -11,7 +11,7 @@ describe("Project page", () => {
   it("should display the name of the project and show total number of entries", () => {
     cy.visit("/projects/airbox");
     cy.get("h2").should("contain", "Project Airbox");
-    cy.get("p").should("contain", "Total feeds: 21");
+    cy.get("p").should("contain", "Top 10 out of 21 total feeds");
   });
   it("should display the top 10 feeds", () => {
     cy.visit("/projects/airbox");
