@@ -19,13 +19,19 @@ import {
   Link,
   Text,
   Stack,
+  Select,
+  HStack,
 } from "@chakra-ui/react";
 import Header from "@/components/Layout/Header";
+import Pagination from "@/components/pagination/Pagination";
+import { useEffect, useState } from "react";
 
 const fetcher: Fetcher<Project, string> = (...args) =>
   fetch(...args).then((res) => res.json());
 
 export default function ProjectPage() {
+  const [startIndex, setStartIndex] = useState<number>(0);
+  const [feedsPerPage, setFeedsPerPage] = useState<number>(10);
   const router = useRouter();
   const projectName = (router.query.name as string) || "";
 
@@ -38,6 +44,13 @@ export default function ProjectPage() {
 
   const displayName =
     projectName.charAt(0).toUpperCase() + projectName.slice(1);
+
+  const feeds = project?.feeds
+    ? project?.feeds.slice(startIndex, startIndex + feedsPerPage)
+    : [];
+  console.log("--- feeds array: ", feeds);
+
+  useEffect(() => {}, [feedsPerPage]);
 
   return (
     <>
@@ -55,9 +68,24 @@ export default function ProjectPage() {
               <Heading as="h2" pt={6} pb={6}>
                 {displayName && `Project ${displayName}`}
               </Heading>
-              <Text>Source: {project?.source}</Text>
-              <Text>Version: {project?.version}</Text>
-              <Text>Top 10 out of {project?.feeds.length} total feeds </Text>
+              <Text>Total feeds: {project?.feeds.length}</Text>
+              <HStack width={400}>
+                <Text>Feeds per page </Text>
+                <Select
+                  placeholder="Feeds per page"
+                  id="itemsPerPage"
+                  defaultValue={10}
+                  width={70}
+                  onChange={(e) => {
+                    setFeedsPerPage(Number(e.target.value));
+                  }}
+                >
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="30">30</option>
+                </Select>
+              </HStack>
               {isLoading ? (
                 <Box>
                   <Spinner />
@@ -75,6 +103,7 @@ export default function ProjectPage() {
                     <TableCaption>PM25 Open Data</TableCaption>
                     <Thead>
                       <Tr>
+                        <Th>No.</Th>
                         <Th>Device ID</Th>
                         <Th>Time</Th>
                         <Th isNumeric>GPS Latitude</Th>
@@ -82,18 +111,35 @@ export default function ProjectPage() {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      {project?.feeds &&
-                        project?.feeds.slice(0, 10).map((feed, index) => (
-                          <Tr key={index}>
-                            <Td>{feed.device_id || "-"}</Td>
-                            <Td>{feed.time || "-"}</Td>
-                            <Td textAlign="right">{feed.gps_lat || "-"}</Td>
-                            <Td textAlign="right">{feed.gps_lon || "-"}</Td>
-                          </Tr>
-                        ))}
+                      {feeds.map((feed, index) => (
+                        <Tr key={index}>
+                          <Td>
+                            {project?.feeds.findIndex(
+                              (f) => f.device_id === feed.device_id
+                            )}
+                          </Td>
+                          <Td>{feed.device_id || "-"}</Td>
+                          <Td>{feed.time || "-"}</Td>
+                          <Td textAlign="right">{feed.gps_lat || "-"}</Td>
+                          <Td textAlign="right">{feed.gps_lon || "-"}</Td>
+                        </Tr>
+                      ))}
                     </Tbody>
                   </Table>
                 </TableContainer>
+              )}
+              {project?.feeds.length && (
+                <Pagination
+                  totalItems={project?.feeds.length}
+                  itemsPerPage={feedsPerPage}
+                  handleNavigationForward={() =>
+                    setStartIndex((index) => index - feedsPerPage)
+                  }
+                  handleNavigationBackward={() =>
+                    setStartIndex((index) => index + feedsPerPage)
+                  }
+                  currentIndex={startIndex}
+                />
               )}
               <Box mb={10}>
                 <Link as={NextLink} size="md" width="300px" href="/projects">

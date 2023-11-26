@@ -7,4 +7,6 @@ module.exports = {
       "@babel/preset-typescript",
     ],
   },
+  testEnvironment: "jsdom",
+  setupFilesAfterEnv: ["./jest-setup.ts"],
 };

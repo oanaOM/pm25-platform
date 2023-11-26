@@ -28,4 +28,34 @@ describe("Project page", () => {
         cy.get("td").eq(3).contains("121.392");
       });
   });
+
+  it("should allow the user to navigate back and forward through the feeds", () => {
+    cy.visit("/projects/airbox");
+    cy.get("h2").should("contain", "Project Airbox");
+    cy.get("p").should("contain", "Total feeds: 21");
+
+    // go forwards once
+    cy.get("[data-testid=btn-right-nav").click();
+    cy.contains("74DA38F7C610");
+
+    // go forwards again
+    cy.get("[data-testid=btn-right-nav").click();
+    cy.contains("74DA38F7C5AA");
+    cy.get("[data-testid=btn-right-nav").should("have.attr", "disabled");
+
+    // go backwards twice
+    cy.get("[data-testid=btn-left-nav").click();
+    cy.get("[data-testid=btn-left-nav").click();
+    cy.contains("74DA38F7C64C");
+    cy.get("[data-testid=btn-left-nav").should("have.attr", "disabled");
+  });
+
+  it("should allow the user to change the number of feeds to see per page", () => {
+    cy.visit("/projects/airbox");
+    cy.get("h2").should("contain", "Project Airbox");
+    cy.get("p").should("contain", "Total feeds: 21");
+
+    // go forwards once
+    cy.get("select").select("20");
+  });
 });

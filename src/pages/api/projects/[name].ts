@@ -1,10 +1,11 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { ErrorAPI } from "@/utils/types";
+import { mockProjectDetails } from "@/utils/conts";
+import { ErrorAPI, Project } from "@/utils/types";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<string | ErrorAPI>
+  res: NextApiResponse<Project | ErrorAPI>
 ) {
   const { name } = req.query;
   try {
@@ -15,9 +16,9 @@ async function handler(
       }
     );
 
-    const result = await response.json();
+    // const result = await response.json();
 
-    return res.status(200).json(result);
+    return res.status(200).json(mockProjectDetails);
   } catch (error) {
     console.error("Error:", error);
     return res.status(402).json({
