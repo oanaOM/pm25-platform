@@ -1,7 +1,5 @@
 import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import useSWR, { Fetcher } from "swr";
 import { useEffect, useState } from "react";
 import Header from "@/components/Layout/Header";
 import {
@@ -12,25 +10,26 @@ import {
   UnorderedList,
   Box,
 } from "@chakra-ui/react";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { ErrorAPI } from "@/utils/types";
 
-const fetcher: Fetcher<string, string> = (...args) =>
-  fetch(...args).then((res) => res.json());
-
-export default function ProjectsPage() {
+// TODO: handle error case
+export default function ProjectsPage({
+  data,
+  error,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [projects, setProjects] = useState<string[]>([]);
-  const { data, error, isLoading } = useSWR<string>("/api/projects", fetcher);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (data) {
       setProjects(data.split("\n").filter((p) => p != ""));
+      setIsLoading(false);
     }
   }, [data]);
 
-  const router = useRouter();
-
-  // TODO: handle errors in a better way
   if (error) {
-    router.push("/error");
+    return <div>Oops, something went wrong when fetching the projects </div>;
   }
 
   return (
@@ -66,7 +65,6 @@ export default function ProjectsPage() {
                           query: { name: project },
                         }}
                       >
-                        {/* TODO: extract this to a separate function to make it more readable and reusable */}
                         {project
                           .replace(/_/g, " ")
                           .replace(/\b\w/g, (firstLetter: string) =>
@@ -83,3 +81,25 @@ export default function ProjectsPage() {
     </>
   );
 }
+
+// https://nextjs.org/docs/pages/building-your-application/deploying/production-checklist#caching
+export const getServerSideProps = (async (context) => {
+  context.res.setHeader(
+    "Cache-Control",
+    "public, s-maxage=10, stale-while-revalidate=59"
+  );
+  const res = await fetch("https://pm25.lass-net.org/API-1.0.0/project/all/");
+  const status = await res.status;
+
+  if (status === 200) {
+    const data = await res.text();
+    return { props: { data } };
+  } else {
+    return { props: { error: { code: status } } };
+  }
+}) satisfies GetServerSideProps<
+  | {
+      data?: string | undefined;
+    }
+  | ErrorAPI
+>;

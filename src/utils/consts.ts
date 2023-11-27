@@ -1,8 +1,4 @@
-export const mockProjects = `airbox
-maps
-fw_sensor
-rescue_tw
-mock_project`;
+export const API_URL = "https://pm25.lass-net.org/API-1.0.0/project/all/";
 
 export const mockProjectDetails = {
   source: "last-all-airbox by IIS-NRL",

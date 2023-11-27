@@ -1,7 +1,5 @@
 import Head from "next/head";
-import { useRouter } from "next/router";
-import { Project } from "@/utils/types";
-import useSWR, { Fetcher } from "swr";
+import { ErrorAPI, Project } from "@/utils/types";
 import NextLink from "next/link";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import {
@@ -21,20 +19,23 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import Header from "@/components/Layout/Header";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { useEffect, useState } from "react";
 
-const fetcher: Fetcher<Project, string> = (...args) =>
-  fetch(...args).then((res) => res.json());
+// TODO: handle error case
+export default function ProjectPage({
+  data,
+  projectName = "",
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const [project, setProject] = useState<Project>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-export default function ProjectPage() {
-  const router = useRouter();
-  const projectName = (router.query.name as string) || "";
-
-  // TODO: implement the logic to return 404 if the user tries to navigate to a project that is not part of the project lists
-
-  const { data: project, isLoading } = useSWR<Project>(
-    `/api/projects/${projectName}`,
-    fetcher
-  );
+  useEffect(() => {
+    if (data) {
+      setProject(data);
+      setIsLoading(false);
+    }
+  }, [data]);
 
   const displayName =
     projectName.charAt(0).toUpperCase() + projectName.slice(1);
@@ -57,7 +58,7 @@ export default function ProjectPage() {
               </Heading>
               <Text>Source: {project?.source}</Text>
               <Text>Version: {project?.version}</Text>
-              <Text>Top 10 out of {project?.feeds.length} total feeds </Text>
+              <Text>23 feeds </Text>
               {isLoading ? (
                 <Box>
                   <Spinner />
@@ -107,3 +108,29 @@ export default function ProjectPage() {
     </>
   );
 }
+export const getServerSideProps = (async (context) => {
+  context.res.setHeader(
+    "Cache-Control",
+    "public, s-maxage=10, stale-while-revalidate=59"
+  );
+
+  const name = context.query.name as string;
+
+  const res = await fetch(
+    `https://pm25.lass-net.org/API-1.0.0/project/${name}/latest/`
+  );
+  const status = await res.status;
+
+  if (status === 200) {
+    const data = await res.json();
+    return { props: { data, projectName: name } };
+  } else {
+    return { props: { error: { code: status } } };
+  }
+}) satisfies GetServerSideProps<
+  | {
+      data?: Project;
+      projectName?: string;
+    }
+  | ErrorAPI
+>;
