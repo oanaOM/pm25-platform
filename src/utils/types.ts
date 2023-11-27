@@ -2,12 +2,6 @@ export interface Projects {
   projects: string[];
 }
 
-export interface ErrorAPI {
-  error: {
-    message: string;
-  };
-}
-
 export interface Project {
   source: string;
   c_d0_source: string;
@@ -39,3 +33,7 @@ export interface Feed {
   c_d0: number;
   c_d0_method: string;
 }
+
+export type ErrorAPI = {
+  error: { code: number };
+};
