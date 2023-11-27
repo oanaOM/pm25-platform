@@ -1,12 +1,10 @@
 import Head from "next/head";
 import Header from "@/components/Layout/Header";
 import { Container, Link } from "@chakra-ui/react";
-import { useRouter } from "next/router";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import NextLink from "next/link";
 
 export default function Home() {
-  const router = useRouter();
   return (
     <>
       <Head>

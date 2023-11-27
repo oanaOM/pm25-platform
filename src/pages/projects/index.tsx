@@ -11,10 +11,12 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { ErrorAPI } from "@/utils/types";
 
 // TODO: handle error case
 export default function ProjectsPage({
   data,
+  error,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [projects, setProjects] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -25,6 +27,10 @@ export default function ProjectsPage({
       setIsLoading(false);
     }
   }, [data]);
+
+  if (error) {
+    return <div>Oops, something went wrong when fetching the projects </div>;
+  }
 
   return (
     <>
@@ -83,8 +89,17 @@ export const getServerSideProps = (async (context) => {
     "public, s-maxage=10, stale-while-revalidate=59"
   );
   const res = await fetch("https://pm25.lass-net.org/API-1.0.0/project/all/");
-  const data = await res.text();
-  return { props: { data } };
-}) satisfies GetServerSideProps<{
-  data: string;
-}>;
+  const status = await res.status;
+
+  if (status === 200) {
+    const data = await res.text();
+    return { props: { data } };
+  } else {
+    return { props: { error: { code: status } } };
+  }
+}) satisfies GetServerSideProps<
+  | {
+      data?: string | undefined;
+    }
+  | ErrorAPI
+>;

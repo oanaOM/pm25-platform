@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { Project } from "@/utils/types";
+import { ErrorAPI, Project } from "@/utils/types";
 import NextLink from "next/link";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import {
@@ -58,7 +58,7 @@ export default function ProjectPage({
               </Heading>
               <Text>Source: {project?.source}</Text>
               <Text>Version: {project?.version}</Text>
-              <Text>Top 10 out of {project?.feeds.length} total feeds </Text>
+              <Text>23 feeds </Text>
               {isLoading ? (
                 <Box>
                   <Spinner />
@@ -119,9 +119,18 @@ export const getServerSideProps = (async (context) => {
   const res = await fetch(
     `https://pm25.lass-net.org/API-1.0.0/project/${name}/latest/`
   );
-  const data = await res.json();
-  return { props: { data, projectName: name } };
-}) satisfies GetServerSideProps<{
-  data: Project;
-  projectName: string;
-}>;
+  const status = await res.status;
+
+  if (status === 200) {
+    const data = await res.json();
+    return { props: { data, projectName: name } };
+  } else {
+    return { props: { error: { code: status } } };
+  }
+}) satisfies GetServerSideProps<
+  | {
+      data?: Project;
+      projectName?: string;
+    }
+  | ErrorAPI
+>;

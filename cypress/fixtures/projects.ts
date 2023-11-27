@@ -1,7 +1,8 @@
 export const mockProjects = `airbox
 maps
 fw_sensor
-rescue_tw`;
+rescue_tw
+mock_project`;
 
 export const mockProjectDetails = {
   source: "last-all-airbox by IIS-NRL",
